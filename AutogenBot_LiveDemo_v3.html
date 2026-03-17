@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutogenBot — A.I.R Pilot OS</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Barlow+Condensed:wght@600;700;900&family=Barlow:wght@400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0A0A0A;color:#F0EDE8;font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden;}
+.shell{max-width:960px;margin:0 auto;padding:40px 32px 80px;position:relative;}
+
+/* SIM BADGE */
+.sim-badge{position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:7px;background:rgba(10,10,10,0.9);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:5px 12px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.28);letter-spacing:1px;z-index:200;}
+.sim-badge span{color:rgba(255,140,0,0.5);}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.logo{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;letter-spacing:2px;}
+.logo-autogen{color:#F0EDE8;}
+.logo-bot{color:#8DC63F;}
+.logo-os{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8DC63F;letter-spacing:3px;margin-top:3px;}
+.status-pill{display:flex;align-items:center;gap:8px;background:rgba(141,198,63,0.08);border:1px solid rgba(141,198,63,0.25);border-radius:4px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8DC63F;}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:#8DC63F;animation:pdot 1.4s infinite;}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.3;transform:scale(0.8);}}
+
+/* HERO */
+.hero-line{font-family:'Barlow Condensed',sans-serif;font-size:54px;font-weight:900;line-height:0.95;letter-spacing:-1px;margin-bottom:14px;}
+.hero-line span{color:#8DC63F;}
+.hero-sub{font-size:16px;color:rgba(240,237,232,0.5);margin-bottom:48px;line-height:1.6;max-width:640px;}
+
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8DC63F;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;}
+
+/* METRICS */
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:48px;}
+.metric-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px 16px;}
+.metric-val{font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:700;color:#8DC63F;line-height:1;}
+.metric-unit{font-size:16px;color:rgba(240,237,232,0.4);}
+.metric-label{font-size:12px;color:rgba(240,237,232,0.4);margin-top:6px;line-height:1.4;}
+
+/* LOOP */
+.loop-row{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:48px;overflow-x:auto;}
+.loop-step{text-align:center;flex:1;min-width:88px;}
+.loop-icon{width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:18px;transition:all 0.3s;}
+.loop-icon.lit{border-color:#8DC63F;background:rgba(141,198,63,0.12);box-shadow:0 0 14px rgba(141,198,63,0.18);}
+.loop-step-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:#F0EDE8;}
+.loop-step-sub{font-size:10px;color:rgba(240,237,232,0.35);margin-top:2px;font-family:'IBM Plex Mono',monospace;}
+.loop-arrow{font-size:18px;color:rgba(141,198,63,0.4);flex-shrink:0;padding:0 2px;margin-bottom:20px;}
+
+/* BRAIN CANVAS SECTION */
+.brain-section{margin-bottom:48px;position:relative;background:rgba(5,5,5,0.6);border:1px solid rgba(141,198,63,0.1);border-radius:10px;overflow:hidden;}
+#brainCanvas{display:block;width:100%;height:420px;}
+.brain-hdr{position:absolute;top:14px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;}
+.brain-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:#8DC63F;letter-spacing:2px;}
+.brain-subtitle{font-size:10px;color:rgba(141,198,63,0.5);font-family:'IBM Plex Mono',monospace;margin-top:3px;letter-spacing:1px;}
+.brain-live{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8DC63F;}
+.brain-live-dot{width:5px;height:5px;border-radius:50%;background:#8DC63F;animation:pdot 1.2s infinite;}
+.brain-legend{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:16px;flex-wrap:wrap;justify-content:center;pointer-events:none;}
+.bleg{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,0.4);font-family:'IBM Plex Mono',monospace;}
+.bleg-dot{width:8px;height:8px;border-radius:50%;}
+.brain-tip{position:absolute;background:rgba(0,0,0,0.95);border:1px solid #8DC63F;border-radius:6px;padding:10px 14px;pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:10;max-width:190px;}
+.brain-tip-name{font-family:'Orbitron',sans-serif;font-size:11px;color:#8DC63F;font-weight:700;margin-bottom:4px;}
+.brain-tip-desc{font-size:10px;color:rgba(255,255,255,0.55);line-height:1.5;font-family:'IBM Plex Mono',monospace;}
+
+/* AGENTS */
+.agents-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:48px;}
+.agent-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px;transition:all 0.2s;position:relative;overflow:hidden;}
+.agent-card:hover,.agent-card.active{border-color:rgba(141,198,63,0.45);background:rgba(141,198,63,0.06);}
+.agent-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#8DC63F;transform:scaleX(0);transform-origin:left;transition:transform 0.3s;}
+.agent-card.active::before{transform:scaleX(1);}
+.agent-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#F0EDE8;margin-bottom:6px;}
+.agent-desc{font-size:13px;color:rgba(240,237,232,0.45);line-height:1.5;}
+.agent-status{display:inline-block;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 10px;border-radius:3px;}
+.s-run{background:rgba(141,198,63,0.1);color:#8DC63F;border:1px solid rgba(141,198,63,0.2);animation:sPulse 2s infinite;}
+.s-idle{background:rgba(240,237,232,0.04);color:rgba(240,237,232,0.3);border:1px solid rgba(255,255,255,0.07);}
+@keyframes sPulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+/* LIVE LOG */
+.feed-box{background:#0E0E0E;border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;margin-bottom:48px;}
+.feed-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.feed-title{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(240,237,232,0.4);letter-spacing:1px;}
+.feed-live{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8DC63F;}
+.feed-live-dot{width:6px;height:6px;border-radius:50%;background:#8DC63F;animation:pdot 1s infinite;}
+.feed-log{padding:14px 18px;height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
+.log-line{font-family:'IBM Plex Mono',monospace;font-size:11.5px;line-height:1.6;opacity:0;animation:fadeLog 0.4s forwards;}
+@keyframes fadeLog{to{opacity:1;}}
+.log-time{color:rgba(240,237,232,0.2);margin-right:10px;}
+.log-agent{font-weight:600;margin-right:8px;}
+.log-msg{color:rgba(240,237,232,0.6);}
+.cg{color:#8DC63F;}.cb{color:#4FC3F7;}.co{color:#FF7043;}.cy{color:#F0B429;}.cp{color:#CE93D8;}
+
+/* SIM vs REAL */
+.sim-real{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:48px;}
+.sim-panel,.real-panel{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:24px;}
+.sim-panel{border-color:rgba(79,195,247,0.2);}.real-panel{border-color:rgba(141,198,63,0.2);}
+.panel-head{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.panel-dot{width:9px;height:9px;border-radius:50%;}
+.panel-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;}
+.bar-row{margin-bottom:14px;}
+.bar-label{display:flex;justify-content:space-between;font-size:12px;color:rgba(240,237,232,0.4);margin-bottom:6px;}
+.bar-track{background:rgba(255,255,255,0.06);border-radius:2px;height:7px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:2px;transition:width 1.8s cubic-bezier(.4,0,.2,1);}
+.bf-blue{background:#4FC3F7;}.bf-green{background:#8DC63F;}
+
+/* GENOME */
+.genome-grid{display:grid;grid-template-columns:repeat(15,1fr);gap:5px;margin-top:14px;margin-bottom:12px;}
+.genome-cell{aspect-ratio:1;border-radius:3px;cursor:pointer;transition:transform 0.15s;}
+.genome-cell:hover{transform:scale(1.3);}
+.genome-legend{display:flex;gap:20px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:rgba(240,237,232,0.4);}
+.legend-dot{width:10px;height:10px;border-radius:3px;}
+
+.divider{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:40px 0;}
+
+/* FOOTER */
+.footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
+.footer-claim{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;line-height:1.2;}
+.footer-claim span{color:#8DC63F;}
+.footer-brand{font-family:'IBM Plex Mono',monospace;font-size:12px;margin-bottom:5px;}
+.fw{color:#F0EDE8;}.fg{color:#8DC63F;}
+.footer-contact{font-size:13px;color:rgba(240,237,232,0.35);}
+.footer-domains{font-size:12px;color:rgba(240,237,232,0.22);margin-top:5px;}
+</style>
+</head>
+<body>
+
+<div class="sim-badge"><span>◈</span> SIMULATED DEMO — NOT A LIVE SYSTEM</div>
+
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="logo"><span class="logo-autogen">AUTOGEN</span><span class="logo-bot">BOT</span></div>
+      <div class="logo-os">A.I.R PILOT OS</div>
+    </div>
+    <div class="status-pill"><span class="pulse-dot"></span>&nbsp;LIVING OS — ACTIVE</div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero-line">The Robot That<br><span>Writes Its Own</span> Software</div>
+  <div class="hero-sub">A physical AI platform where autonomous agents continuously generate, test in simulation, and deploy better robot behavior — every single hour of operation.</div>
+
+  <!-- METRICS -->
+  <div class="section-label">System Activity — Live</div>
+  <div class="metrics-row">
+    <div class="metric-card"><div class="metric-val" id="m-iter">0</div><div class="metric-label">Improvement iterations<br>this session</div></div>
+    <div class="metric-card"><div class="metric-val" id="m-sim">0<span class="metric-unit">K</span></div><div class="metric-label">Parallel simulation<br>runs completed</div></div>
+    <div class="metric-card"><div class="metric-val" id="m-dep">0</div><div class="metric-label">New behaviors<br>deployed to robot</div></div>
+    <div class="metric-card"><div class="metric-val" id="m-gap">12.5<span class="metric-unit">%</span></div><div class="metric-label">Sim-to-real gap<br>(closing)</div></div>
+  </div>
+
+  <!-- LOOP -->
+  <div class="section-label">The Continuous Improvement Loop</div>
+  <div class="loop-row">
+    <div class="loop-step"><div class="loop-icon" id="ls-0">👁️</div><div class="loop-step-name">Observe</div><div class="loop-step-sub">Vision sensors</div></div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><div class="loop-icon" id="ls-1">🔬</div><div class="loop-step-name">Hypothesize</div><div class="loop-step-sub">Find gaps</div></div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><div class="loop-icon" id="ls-2">✍️</div><div class="loop-step-name">Generate</div><div class="loop-step-sub">Write code</div></div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><div class="loop-icon" id="ls-3">🧪</div><div class="loop-step-name">Simulate</div><div class="loop-step-sub">1000+ runs</div></div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><div class="loop-icon" id="ls-4">⚖️</div><div class="loop-step-name">Evaluate</div><div class="loop-step-sub">Score & rank</div></div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><div class="loop-icon" id="ls-5">📡</div><div class="loop-step-name">Deploy</div><div class="loop-step-sub">Push to robot</div></div>
+  </div>
+
+  <!-- NEURAL BRAIN -->
+  <div class="section-label">A.I.R Pilot — Neural Architecture</div>
+  <div class="brain-section">
+    <canvas id="brainCanvas" height="420"></canvas>
+    <div class="brain-hdr">
+      <div>
+        <div class="brain-title">LIVING OS NEURAL MAP</div>
+        <div class="brain-subtitle">HOVER ANY NODE TO EXPLORE · SIGNALS FIRE IN REAL TIME</div>
+      </div>
+      <div class="brain-live"><span class="brain-live-dot"></span>&nbsp;NEURAL ACTIVE</div>
+    </div>
+    <div class="brain-legend">
+      <div class="bleg"><span class="bleg-dot" style="background:#8DC63F"></span>SENSORS</div>
+      <div class="bleg"><span class="bleg-dot" style="background:#B8E04A"></span>PERCEPTION</div>
+      <div class="bleg"><span class="bleg-dot" style="background:#4FC3F7"></span>AGENT SIGNAL</div>
+      <div class="bleg"><span class="bleg-dot" style="background:#FF7043"></span>ADVERSARIAL</div>
+      <div class="bleg"><span class="bleg-dot" style="background:#CE93D8"></span>GENOME WRITE</div>
+      <div class="bleg"><span class="bleg-dot" style="background:#FFF176"></span>DEPLOY PULSE</div>
+    </div>
+    <div class="brain-tip" id="brainTip">
+      <div class="brain-tip-name" id="tipName"></div>
+      <div class="brain-tip-desc" id="tipDesc"></div>
+    </div>
+  </div>
+
+  <!-- AGENT PARLIAMENT -->
+  <div class="section-label">The Agent Parliament — A.I.R Pilot</div>
+  <div class="agents-grid">
+    <div class="agent-card"><div class="agent-name">🔬 Researcher</div><div class="agent-desc">Scans robot telemetry for performance gaps. Proposes behavioral hypotheses every 5–30 minutes of operation.</div><div class="agent-status s-run">SCANNING TELEMETRY</div></div>
+    <div class="agent-card"><div class="agent-name">✍️ Coder</div><div class="agent-desc">Writes multiple competing implementations of new robot behaviors. Parallel instances — evolution through variation.</div><div class="agent-status s-run">GENERATING v48</div></div>
+    <div class="agent-card"><div class="agent-name">⚔️ Adversarial</div><div class="agent-desc">Red-teams every candidate with 1,000+ edge case simulations before any code touches the real robot.</div><div class="agent-status s-run">ATTACKING v48</div></div>
+    <div class="agent-card"><div class="agent-name">⚖️ Judge</div><div class="agent-desc">Scores candidates on safety margin, energy efficiency, and generalization to unseen terrain types.</div><div class="agent-status s-idle">EVALUATING</div></div>
+    <div class="agent-card"><div class="agent-name">📡 Deployer</div><div class="agent-desc">Staged rollout with human review in early phases. Instant rollback if real-world metrics degrade.</div><div class="agent-status s-idle">STANDBY</div></div>
+    <div class="agent-card"><div class="agent-name">🔁 Gap Agent</div><div class="agent-desc">Measures sim-to-real divergence. Updates the digital twin via real-to-sim calibration. Target: &lt;8%.</div><div class="agent-status s-run">CALIBRATING</div></div>
+  </div>
+
+  <!-- LIVE LOG -->
+  <div class="section-label">Live Agent Activity Log</div>
+  <div class="feed-box">
+    <div class="feed-header">
+      <div class="feed-title">AGENT_PARLIAMENT / STDOUT</div>
+      <div class="feed-live"><span class="feed-live-dot"></span>&nbsp;LIVE</div>
+    </div>
+    <div class="feed-log" id="feed-log"></div>
+  </div>
+
+  <!-- SIM vs REAL -->
+  <div class="section-label">Simulation → Real World Pipeline</div>
+  <div class="sim-real">
+    <div class="sim-panel">
+      <div class="panel-head"><span class="panel-dot" style="background:#4FC3F7"></span><span class="panel-title">Digital Twin</span></div>
+      <div class="bar-row"><div class="bar-label"><span>Terrain fidelity</span><span id="sim-t">—</span></div><div class="bar-track"><div class="bar-fill bf-blue" id="bar-sim-t" style="width:0%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>Physics accuracy</span><span id="sim-p">—</span></div><div class="bar-track"><div class="bar-fill bf-blue" id="bar-sim-p" style="width:0%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>Stereo depth model</span><span id="sim-s">—</span></div><div class="bar-track"><div class="bar-fill bf-blue" id="bar-sim-s" style="width:0%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>Parallel instances</span><span id="sim-i">—</span></div><div class="bar-track"><div class="bar-fill bf-blue" id="bar-sim-i" style="width:0%"></div></div></div>
+    </div>
+    <div class="real-panel">
+      <div class="panel-head"><span class="panel-dot" style="background:#8DC63F"></span><span class="panel-title">Physical Robot</span></div>
+      <div class="bar-row"><div class="bar-label"><span>Slope traversal</span><span id="real-a">—</span></div><div class="bar-track"><div class="bar-fill bf-green" id="bar-real-a" style="width:0%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>Vision obstacle avoidance</span><span id="real-b">—</span></div><div class="bar-track"><div class="bar-fill bf-green" id="bar-real-b" style="width:0%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>GPS recovery (visual SLAM)</span><span id="real-c">—</span></div><div class="bar-track"><div class="bar-fill bf-green" id="bar-real-c" style="width:0%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>Energy efficiency</span><span id="real-d">—</span></div><div class="bar-track"><div class="bar-fill bf-green" id="bar-real-d" style="width:0%"></div></div></div>
+    </div>
+  </div>
+
+  <!-- GENOME -->
+  <div class="section-label">Code Genome — Full Behavioral Evolution History</div>
+  <div class="genome-grid" id="genome-grid"></div>
+  <div class="genome-legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#8DC63F"></span>Deployed (winner)</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#FF7043"></span>In simulation now</div>
+    <div class="legend-item"><span class="legend-dot" style="background:rgba(240,237,232,0.1)"></span>Archived (failed — never deleted)</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#4FC3F7"></span>Cross-domain transfer</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FOOTER -->
+  <div class="footer-row">
+    <div>
+      <div class="footer-claim">The only robot that gets<br>better every hour it <span>operates.</span></div>
+      <div class="footer-domains" style="margin-top:10px;">Agriculture · Construction · Mining · Defense</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="footer-brand"><span class="fw">AUTOGEN</span><span class="fg">BOT</span></div>
+      <div class="footer-contact">contact@autogenbots.com</div>
+      <div class="footer-domains">A.I.R Pilot OS · Confidential — investor discussion only</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   NEURAL BRAIN
+═══════════════════════════════════════════ */
+const bc = document.getElementById('brainCanvas');
+const bctx = bc.getContext('2d');
+function resizeBrain(){bc.width=bc.offsetWidth;bc.height=420;}
+resizeBrain();
+window.addEventListener('resize',()=>{resizeBrain();placeNodes();});
+
+const G='#8DC63F',BR='#B8E04A',BL='#4FC3F7',OR='#FF7043',PU='#CE93D8',YE='#FFF176';
+function rgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+
+const BNODES=[
+  {id:'cam',   lbl:'CAMERA',    sub:'RGB-D 42Hz',  col:G,  ring:0,ang:-Math.PI*.5,  desc:'Stereo RGB-D. Feeds YOLO26 + FoundationStereo at 42Hz. Primary depth source — no LiDAR required.'},
+  {id:'gps',   lbl:'GPS/RTK',   sub:'cm precision',col:G,  ring:0,ang:-Math.PI*.15, desc:'RTK-GPS at centimeter precision. Falls back to cuVSLAM when signal is lost in orchards or mines.'},
+  {id:'imu',   lbl:'IMU',       sub:'1000Hz',       col:G,  ring:0,ang: Math.PI*.2,  desc:'Inertial Measurement Unit at 1000Hz. Fused with GPS + stereo odometry via Extended Kalman Filter.'},
+  {id:'stereo',lbl:'STEREO',    sub:'FoundationStereo',col:G,ring:0,ang:Math.PI*.55, desc:'FoundationStereo depth estimation. Derives dense 3D maps purely from camera images — cost-effective, vibration-tolerant.'},
+  {id:'therm', lbl:'THERMAL',   sub:'night ops',    col:G,  ring:0,ang:-Math.PI*.85, desc:'Thermal camera for night spraying, personnel detection in mines, and low-visibility conditions.'},
+  {id:'yolo',  lbl:'YOLO26',    sub:'42Hz TensorRT',col:BR, ring:1,ang:-Math.PI*.6,  desc:'YOLO26 on Jetson Orin NX via TensorRT. NMS-free, edge-optimised detection + segmentation. Crop rows, obstacles, personnel.'},
+  {id:'cosmos',lbl:'COSMOS',    sub:'Reason 2B',    col:BR, ring:1,ang:-Math.PI*.1,  desc:'NVIDIA Cosmos Reason 2B. Vision-language model for physics-grounded scene understanding.'},
+  {id:'groot', lbl:'GR00T',     sub:'N1.6 VLA',     col:BR, ring:1,ang: Math.PI*.4,  desc:'Isaac GR00T N1.6 — open Vision-Language-Action model for embodied reasoning and task execution.'},
+  {id:'slam',  lbl:'cuVSLAM',   sub:'GPS fallback', col:BR, ring:1,ang: Math.PI*.85, desc:'CUDA-accelerated Visual SLAM. Sub-5cm drift over 500m+. Activates automatically when GPS fails.'},
+  {id:'depth', lbl:'PERCEPTOR', sub:'3D mapping',   col:BR, ring:1,ang:-Math.PI*.85, desc:'Isaac Perceptor. Dense 3D surround-vision mapping from stereo cameras. No LiDAR needed.'},
+  {id:'res',   lbl:'RESEARCHER',sub:'gap detect',   col:BL, ring:2,ang:-Math.PI*.5,  desc:'Scans telemetry every 5–30 min. Finds performance gaps. Formulates hypotheses for Coder agents.'},
+  {id:'cod',   lbl:'CODER',     sub:'code gen',     col:BL, ring:2,ang:-Math.PI*.1,  desc:'Writes competing behavior implementations in parallel. Evolution through variation.'},
+  {id:'adv',   lbl:'ADVERSARIAL',sub:'red team',    col:OR, ring:2,ang: Math.PI*.3,  desc:'Attacks every candidate with 1,000+ edge case simulations. Hard-kill gate before real robot.'},
+  {id:'jud',   lbl:'JUDGE',     sub:'evaluate',     col:PU, ring:2,ang: Math.PI*.7,  desc:'Scores on safety, energy efficiency, and generalization to unseen terrain. Only top-ranked advance.'},
+  {id:'gap',   lbl:'GAP AGENT', sub:'sim-to-real',  col:BL, ring:2,ang:-Math.PI*.85, desc:'Measures sim-to-real divergence. Closes the gap via real-world calibration. Target: <8%.'},
+  {id:'kernel',lbl:'KERNEL',    sub:'IMMUTABLE',    col:G,  ring:3,ang:0,            desc:'Constitutional Kernel. Hard limits no agent can override: max slope, tilt cutoff, comms loss, human override always active.'},
+  {id:'deploy',lbl:'DEPLOY',    sub:'→ ROBOT',      col:YE, ring:4,ang: Math.PI*.5,  desc:'Staged rollout — human review in early phases. 0.1% fleet first, then full. Instant rollback available.'},
+  {id:'genome',lbl:'GENOME',    sub:'memory',       col:PU, ring:4,ang:-Math.PI*.5,  desc:'Code Genome. Every behavioral version archived forever — deployed, failed, in-sim. Never deleted.'},
+];
+
+const BCONNS=[
+  ['cam','yolo'],['cam','depth'],['cam','slam'],['gps','cosmos'],['gps','slam'],
+  ['imu','slam'],['imu','cosmos'],['stereo','depth'],['stereo','yolo'],
+  ['therm','yolo'],['therm','cosmos'],['yolo','res'],['yolo','cod'],
+  ['cosmos','res'],['cosmos','jud'],['groot','cod'],['groot','res'],
+  ['slam','gap'],['slam','res'],['depth','gap'],['depth','cod'],
+  ['res','kernel'],['cod','kernel'],['adv','kernel'],['jud','kernel'],['gap','kernel'],
+  ['res','cod'],['cod','adv'],['adv','jud'],['jud','deploy'],
+  ['gap','res'],['gap','cod'],['kernel','deploy'],['kernel','genome'],['deploy','genome'],
+];
+
+const BSIGS=[
+  {f:'cam',t:'yolo',c:G,fr:36},{f:'imu',t:'slam',c:G,fr:50},{f:'gps',t:'cosmos',c:G,fr:65},
+  {f:'stereo',t:'depth',c:G,fr:42},{f:'therm',t:'yolo',c:G,fr:80},
+  {f:'yolo',t:'res',c:BL,fr:110},{f:'cosmos',t:'res',c:BL,fr:140},
+  {f:'groot',t:'cod',c:BL,fr:125},{f:'slam',t:'gap',c:BL,fr:150},
+  {f:'res',t:'cod',c:BL,fr:105},{f:'cod',t:'adv',c:OR,fr:135},
+  {f:'adv',t:'jud',c:OR,fr:160},{f:'jud',t:'kernel',c:PU,fr:190},
+  {f:'gap',t:'kernel',c:BL,fr:180},{f:'kernel',t:'deploy',c:YE,fr:280},
+  {f:'kernel',t:'genome',c:PU,fr:240},{f:'deploy',t:'genome',c:YE,fr:330},
+];
+
+const bsignals=[];
+const lastBSpawn={};
+BSIGS.forEach(s=>lastBSpawn[s.f+s.t]=0);
+BNODES.forEach(n=>{n.pulse=0;n.x=0;n.y=0;n.nr=20;});
+
+function placeNodes(){
+  const W=bc.width,H=bc.height;
+  const cx=W/2,cy=H/2+10;
+  const base=Math.min(W,H);
+  const rr=[base*.42,base*.285,base*.178,0,base*.115];
+  BNODES.forEach(n=>{
+    const sz=n.ring===0?Math.min(20,base*.026):n.ring===1?Math.min(24,base*.03):n.ring===2?Math.min(28,base*.035):n.ring===3?Math.min(38,base*.048):Math.min(24,base*.03);
+    n.nr=sz;
+    if(n.ring===3){n.x=cx;n.y=cy;return;}
+    n.x=cx+rr[n.ring]*Math.cos(n.ang);
+    n.y=cy+rr[n.ring]*Math.sin(n.ang);
+  });
+}
+placeNodes();
+
+function gn(id){return BNODES.find(n=>n.id===id);}
+
+function spawnBSig(fid,tid,col){
+  const f=gn(fid),t=gn(tid);
+  if(!f||!t)return;
+  bsignals.push({x:f.x,y:f.y,tx:t.x,ty:t.y,col,t:0,spd:1.5+Math.random()*.8});
+  if(f)f.pulse=1;
+}
+
+let bframe=0,hovN=null;
+const tip=document.getElementById('brainTip');
+
+bc.addEventListener('mousemove',e=>{
+  const rect=bc.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(bc.width/rect.width);
+  const my=(e.clientY-rect.top)*(bc.height/rect.height);
+  let found=null;
+  BNODES.forEach(n=>{const dx=mx-n.x,dy=my-n.y;if(Math.sqrt(dx*dx+dy*dy)<n.nr+14)found=n;});
+  hovN=found;
+  if(found){
+    tip.style.opacity='1';
+    const px=found.x/bc.width;
+    tip.style.left=(px<.6?found.x+found.nr+12:found.x-210)+'px';
+    tip.style.top=Math.max(40,found.y-40)+'px';
+    document.getElementById('tipName').textContent=found.lbl;
+    document.getElementById('tipDesc').textContent=found.desc;
+  }else{tip.style.opacity='0';}
+});
+
+const bparticles=Array.from({length:55},()=>({x:Math.random()*1200,y:Math.random()*420,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.1+.3,a:Math.random()*.1+.03}));
+
+function drawBNode(n){
+  const p=n.pulse,h=hovN===n;
+  if(p>.05||h){const g=bctx.createRadialGradient(n.x,n.y,n.nr*.5,n.x,n.y,n.nr*2.6);g.addColorStop(0,rgba(n.col,.28*(p||.5)));g.addColorStop(1,rgba(n.col,0));bctx.beginPath();bctx.arc(n.x,n.y,n.nr*2.6,0,Math.PI*2);bctx.fillStyle=g;bctx.fill();}
+  if(n.ring===3){bctx.beginPath();bctx.arc(n.x,n.y,n.nr+7,0,Math.PI*2);bctx.strokeStyle=rgba(n.col,.22+p*.35);bctx.lineWidth=1.5;bctx.setLineDash([5,4]);bctx.stroke();bctx.setLineDash([]);}
+  const g2=bctx.createRadialGradient(n.x-n.nr*.3,n.y-n.nr*.3,1,n.x,n.y,n.nr);
+  g2.addColorStop(0,rgba(n.col,.35+p*.28));g2.addColorStop(1,rgba(n.col,.07+p*.12));
+  bctx.beginPath();bctx.arc(n.x,n.y,n.nr,0,Math.PI*2);bctx.fillStyle=g2;bctx.fill();
+  bctx.strokeStyle=rgba(n.col,.6+p*.35);bctx.lineWidth=h?2:1;bctx.stroke();
+  bctx.fillStyle=`rgba(255,255,255,${.72+p*.25})`;
+  bctx.font=`bold ${Math.max(6,n.nr*.36)}px 'Orbitron',sans-serif`;
+  bctx.textAlign='center';bctx.textBaseline='middle';
+  bctx.fillText(n.lbl,n.x,n.y-(n.sub?2.5:0));
+  if(n.sub){bctx.fillStyle=rgba(n.col,.7);bctx.font=`${Math.max(5.5,n.nr*.26)}px 'IBM Plex Mono',monospace`;bctx.fillText(n.sub,n.x,n.y+n.nr*.46);}
+}
+
+function drawBSig(s){
+  const ix=s.x+(s.tx-s.x)*s.t,iy=s.y+(s.ty-s.y)*s.t;
+  for(let i=1;i<=5;i++){const tt=Math.max(0,s.t-i*.042);bctx.beginPath();bctx.arc(s.x+(s.tx-s.x)*tt,s.y+(s.ty-s.y)*tt,3.5*(1-i*.15),0,Math.PI*2);bctx.fillStyle=rgba(s.col,.11*(6-i));bctx.fill();}
+  bctx.beginPath();bctx.arc(ix,iy,3.5,0,Math.PI*2);bctx.fillStyle=s.col;bctx.fill();
+  bctx.beginPath();bctx.arc(ix,iy,1.6,0,Math.PI*2);bctx.fillStyle='#fff';bctx.fill();
+}
+
+function animBrain(){
+  requestAnimationFrame(animBrain);
+  const W=bc.width,H=bc.height;
+  bctx.clearRect(0,0,W,H);
+  bframe++;
+  bparticles.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    bctx.beginPath();bctx.arc(p.x,p.y,p.r,0,Math.PI*2);bctx.fillStyle=`rgba(141,198,63,${p.a})`;bctx.fill();
+  });
+  const base=Math.min(W,H);
+  [base*.42,base*.285,base*.178].forEach(rr=>{bctx.beginPath();bctx.arc(W/2,H/2+10,rr,0,Math.PI*2);bctx.strokeStyle='rgba(141,198,63,0.05)';bctx.lineWidth=1;bctx.setLineDash([3,7]);bctx.stroke();bctx.setLineDash([]);});
+  BCONNS.forEach(([a,b])=>{
+    const fn=gn(a),tn=gn(b);if(!fn||!tn)return;
+    const act=fn.pulse>.1||tn.pulse>.1;
+    let c=G;if(fn.col===OR||tn.col===OR)c=OR;else if(fn.col===YE||tn.col===YE)c=YE;else if(fn.col===PU||tn.col===PU)c=PU;else if(fn.col===BL||tn.col===BL)c=BL;else if(fn.col===BR||tn.col===BR)c=BR;
+    bctx.beginPath();bctx.moveTo(fn.x,fn.y);bctx.lineTo(tn.x,tn.y);bctx.strokeStyle=rgba(c,act?.28:.06);bctx.lineWidth=.7;bctx.stroke();
+  });
+  BSIGS.forEach(s=>{
+    const key=s.f+s.t;
+    if(bframe-lastBSpawn[key]>s.fr*(0.7+Math.random()*.6)){spawnBSig(s.f,s.t,s.c);lastBSpawn[key]=bframe;}
+  });
+  for(let i=bsignals.length-1;i>=0;i--){
+    const s=bsignals[i];s.t+=s.spd*.012;
+    if(s.t>=1){const tr=BNODES.find(n=>Math.abs(n.x-s.tx)<8&&Math.abs(n.y-s.ty)<8);if(tr)tr.pulse=Math.min(1,tr.pulse+.6);bsignals.splice(i,1);}
+    else drawBSig(s);
+  }
+  BNODES.forEach(n=>{n.pulse=Math.max(0,n.pulse-.017);});
+  [0,1,2,4,3].forEach(ring=>{BNODES.filter(n=>n.ring===ring).forEach(drawBNode);});
+  if(bframe%92===0){const k=gn('kernel');if(k){k.pulse=1;bctx.beginPath();bctx.arc(k.x,k.y,k.nr+22,0,Math.PI*2);bctx.strokeStyle='rgba(141,198,63,0.08)';bctx.lineWidth=10;bctx.stroke();}}
+}
+animBrain();
+
+/* ═══════════════════════════════════════════
+   DASHBOARD LOGIC
+═══════════════════════════════════════════ */
+const LOGS=[
+  {cls:'cb',agent:'PERCEPTION',  msg:'FoundationStereo depth map @ 38Hz — crop row deviation +4.2cm detected in loose soil'},
+  {cls:'cg',agent:'RESEARCHER',  msg:'Stereo vision: 11% efficiency drop on gravel slope — flagging for improvement cycle'},
+  {cls:'cb',agent:'CODER[1]',    msg:'Generating candidate v48: stereo_adaptive_torque_gravel.py — 847 lines'},
+  {cls:'cb',agent:'CODER[2]',    msg:'Generating candidate v48b: depth_predictive_slip_compensation.py — competing solution'},
+  {cls:'co',agent:'ADVERSARIAL', msg:'Stress-testing v48 — 1,204 edge cases including 38° slope + dust obstruction of cameras'},
+  {cls:'co',agent:'ADVERSARIAL', msg:'v48b FAILED edge case #312: sudden slope 20°→35° with camera washout — archiving'},
+  {cls:'cy',agent:'JUDGE',       msg:'Scoring v48 across 1,204 sim runs — efficiency +18%, safety margin +9%, vision coverage +6%'},
+  {cls:'cg',agent:'GAP_AGENT',   msg:'Sim-to-real: FoundationStereo depth error reduced 3.2% — updating digital twin model'},
+  {cls:'cg',agent:'DEPLOYER',    msg:'v48 APPROVED (human review ✓) — staged 100% deploy — monitoring live telemetry'},
+  {cls:'cb',agent:'CODER[3]',    msg:'Mining domain transfer: adapting rock_stability_vision.py from genome archive v31'},
+  {cls:'cg',agent:'RESEARCHER',  msg:'Fleet signal: visual SLAM recovery improved 22% vs baseline — logging to genome'},
+  {cls:'cy',agent:'JUDGE',       msg:'Cross-domain: construction depth_material → ag canopy_density_stereo module'},
+  {cls:'cg',agent:'GAP_AGENT',   msg:'Camera shadow zone 180m — cuVSLAM fallback triggered, drift 0.0cm detected'},
+  {cls:'co',agent:'ADVERSARIAL', msg:'Attack suite on v49 — 1,500 scenarios including night + rain + dust conditions'},
+  {cls:'cg',agent:'DEPLOYER',    msg:'v49 cross-domain APPROVED — fleet vision efficiency +6% — genome updated'},
+  {cls:'cb',agent:'CODER[1]',    msg:'Starting v50: night_stereo_obstacle_merge.py — researcher signal at 02:14 UTC'},
+];
+
+let logIdx=0;
+const logEl=document.getElementById('feed-log');
+function addLog(){
+  const e=LOGS[logIdx%LOGS.length];logIdx++;
+  const now=new Date();
+  const ts=[now.getHours(),now.getMinutes(),now.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+  const div=document.createElement('div');div.className='log-line';
+  div.innerHTML=`<span class="log-time">${ts}</span><span class="log-agent ${e.cls}">${e.agent}</span><span class="log-msg">${e.msg}</span>`;
+  logEl.appendChild(div);
+  if(logEl.children.length>14)logEl.removeChild(logEl.firstChild);
+  logEl.scrollTop=logEl.scrollHeight;
+}
+
+let iter=0,sim=0,dep=0;
+function tickMetrics(){
+  iter+=Math.floor(Math.random()*3)+1;sim+=Math.floor(Math.random()*50)+25;
+  if(Math.random()>.85)dep++;
+  document.getElementById('m-iter').textContent=iter;
+  const sk=Math.floor(sim/1000),sr=Math.floor((sim%1000)/100);
+  document.getElementById('m-sim').innerHTML=sk+'<span class="metric-unit">.'+sr+'K</span>';
+  document.getElementById('m-dep').textContent=dep;
+  document.getElementById('m-gap').innerHTML=Math.max(.1,12.5-dep*.28).toFixed(1)+'<span class="metric-unit">%</span>';
+}
+
+setTimeout(()=>{
+  [['bar-sim-t','sim-t',87,'%'],['bar-sim-p','sim-p',92,'%'],['bar-sim-s','sim-s',85,'%'],['bar-sim-i','sim-i',100,'%'],
+   ['bar-real-a','real-a',78,'%'],['bar-real-b','real-b',83,'%'],['bar-real-c','real-c',74,'%'],['bar-real-d','real-d',71,'%']]
+  .forEach(([bid,lid,val,unit],i)=>{
+    document.getElementById(bid).style.width=val+'%';
+    document.getElementById(lid).textContent=['87%','92%','85%','1,024 inst','78%','83%','74%','71%'][i];
+  });
+},700);
+
+function buildGenome(){
+  const grid=document.getElementById('genome-grid');
+  const types=['deployed','archived','archived','sim','archived','archived','deployed','archived','sim','transfer','archived','archived','archived','sim','archived'];
+  const colors={deployed:'#8DC63F',archived:'rgba(240,237,232,0.08)',sim:'#FF7043',transfer:'#4FC3F7'};
+  const mods=['nav','terrain','vision','stereo','motor','slam','depth','path','canopy','payload'];
+  for(let i=0;i<90;i++){
+    const t=types[i%types.length],c=document.createElement('div');
+    c.className='genome-cell';c.style.background=colors[t];
+    c.style.opacity=t==='archived'?(0.2+Math.random()*.55):'1';
+    c.title=`${mods[i%mods.length]}_v${i+1} [${t}]`;grid.appendChild(c);
+  }
+}
+
+let loopStep=0,agentStep=0;
+function tickLoop(){for(let i=0;i<6;i++)document.getElementById('ls-'+i).classList.remove('lit');document.getElementById('ls-'+loopStep).classList.add('lit');loopStep=(loopStep+1)%6;}
+function tickAgents(){document.querySelectorAll('.agent-card').forEach(c=>c.classList.remove('active'));document.querySelectorAll('.agent-card')[agentStep%6].classList.add('active');agentStep++;}
+
+buildGenome();tickMetrics();
+for(let i=0;i<5;i++)setTimeout(addLog,i*260);
+setInterval(addLog,1950);setInterval(tickMetrics,2400);setInterval(tickLoop,1300);setInterval(tickAgents,2200);
+</script>
+</body>
+</html>
