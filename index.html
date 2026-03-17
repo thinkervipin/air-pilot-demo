@@ -56,7 +56,7 @@ body{background:#0A0A0A;color:#F0EDE8;font-family:'Barlow',sans-serif;min-height
 .sstat{font-family:'IBM Plex Mono',monospace;font-size:11px;}
 .sstat small{display:block;font-size:9px;color:rgba(240,237,232,0.3);margin-top:1px;}
 
-.brain-wrap{position:relative;background:#040C04;border:1px solid rgba(141,198,63,0.2);border-radius:10px;overflow:hidden;margin-bottom:48px;}
+.brain-wrap{position:relative;background:#040C04;border:1px solid rgba(141,198,63,0.2);border-radius:10px;overflow:hidden;margin-bottom:48px;margin-left:calc(-50vw + 50%);margin-right:calc(-50vw + 50%);width:100vw;}
 .brain-wrap canvas{display:block;width:100%;}
 .bhdr{position:absolute;top:14px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:2;}
 .btitle{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#8DC63F;letter-spacing:2px;}
@@ -270,14 +270,14 @@ body{background:#0A0A0A;color:#F0EDE8;font-family:'Barlow',sans-serif;min-height
     </div>
     <div style="text-align:right;">
       <div class="fbrand"><span class="fw">AUTOGEN</span><span class="fg">BOT</span></div>
-      <div class="fcontact">contact@autogenbots.com</div>
+      <div class="fcontact"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d3b0bcbda7b2b0a793b2a6a7bcb4b6bdb1bca7a0fdb0bcbe">[email&#160;protected]</a></div>
       <div class="fdom">A.I.R Pilot OS · Confidential</div>
     </div>
   </div>
 
 </div><!-- /shell -->
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ═══════════════════════════════════════
    GLOBAL HELPER — defined first so every
    function below can call it safely
@@ -495,8 +495,8 @@ window.addEventListener('load', function () {
   ═══════════════════════════════════════ */
   var bc   = document.getElementById('brainCanvas');
   var bwrp = document.getElementById('brain-wrap');
-  var BW   = bwrp.offsetWidth || 900;
-  var BH   = 500;
+  var BW   = window.innerWidth || bwrp.offsetWidth || 1200;
+  var BH   = 680;
   bc.setAttribute('width',  BW);
   bc.setAttribute('height', BH);
   var bctx = bc.getContext('2d');
@@ -504,7 +504,7 @@ window.addEventListener('load', function () {
   var G='#8DC63F', BR='#B8E04A', BL='#4FC3F7', OR='#FF7043', PU='#CE93D8', YE='#FFF176';
   var bcx = BW/2, bcy = BH/2 + 8;
   var base = Math.min(BW, BH);
-  var RR = [base*.40, base*.268, base*.158, 0, base*.098];
+  var RR = [base*.44, base*.30, base*.175, 0, base*.108];
 
   function NR(r) {
     if (r===3) return Math.max(44, base*.056);
@@ -637,20 +637,12 @@ window.addEventListener('load', function () {
     /* draw stroke (outline) first */
     bctx.strokeStyle = 'rgba(0,0,0,0.85)';
     bctx.lineWidth = 3.5;
-    bctx.strokeText(n.lb, n.x, n.y - (n.sb ? 4 : 0));
+    bctx.strokeText(n.lb, n.x, n.y);
     /* then fill white */
     bctx.fillStyle = 'rgba(255,255,255,0.97)';
-    bctx.fillText(n.lb, n.x, n.y - (n.sb ? 4 : 0));
+    bctx.fillText(n.lb, n.x, n.y);
 
-    /* sub-label */
-    if (n.sb) {
-      var sf = Math.max(8, nr*.27);
-      bctx.font = 'bold '+sf+'px "Courier New",monospace';
-      bctx.strokeStyle = 'rgba(0,0,0,0.75)'; bctx.lineWidth=2.5;
-      bctx.strokeText(n.sb, n.x, n.y+nr*.46);
-      bctx.fillStyle = H2R(col,.95);
-      bctx.fillText(n.sb, n.x, n.y+nr*.46);
-    }
+    /* sub-label hidden */
   }
 
   function drawSig(s) {
